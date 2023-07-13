@@ -1,0 +1,159 @@
+-- Create the table: crop_type
+CREATE TABLE crop_type (
+  crop_type_id SERIAL PRIMARY KEY,
+  crop_type_name VARCHAR(255)
+);
+
+-- Create the table: plant_type
+CREATE TABLE plant_type (
+  plant_type_id SERIAL PRIMARY KEY,
+  plant_type_name VARCHAR(255)
+);
+
+-- Create the table: farming
+CREATE TABLE farming (
+  farming_id SERIAL PRIMARY KEY,
+  farming_name VARCHAR(255),
+  farming_description TEXT,
+  farming_image VARCHAR(255)
+);
+
+-- Create the table: usage
+CREATE TABLE usage (
+  usage_id SERIAL PRIMARY KEY,
+  usage_name VARCHAR(255),
+  usage_description TEXT,
+  usage_image VARCHAR(255),
+  usage_example TEXT
+);
+
+-- Create the table: location
+CREATE TABLE location (
+  location_id SERIAL PRIMARY KEY,
+  location_name VARCHAR(255),
+  longitude FLOAT,
+  latitude FLOAT
+);
+
+-- Create the table: account
+CREATE TABLE account (
+  account_id SERIAL PRIMARY KEY,
+  username VARCHAR(255),
+  password VARCHAR(255)
+);
+
+-- Create the table: contact
+CREATE TABLE contact (
+  contact_id SERIAL PRIMARY KEY,
+  contact_type VARCHAR(255),
+  contact_details VARCHAR(255)
+);
+
+-- Create the table: user_type
+CREATE TABLE user_type (
+  user_type_id SERIAL PRIMARY KEY,
+  user_type_name VARCHAR(255)
+);
+
+-- Create the table: practices
+CREATE TABLE practices (
+  practices_id SERIAL PRIMARY KEY,
+  practices_name VARCHAR(255),
+  practices_description TEXT,
+  practices_image VARCHAR(255)
+);
+
+-- Create the table: ritual
+CREATE TABLE ritual (
+  ritual_id SERIAL PRIMARY KEY,
+  ritual_name VARCHAR(255),
+  ritual_description TEXT,
+  ritual_image VARCHAR(255)
+);
+
+-- Create the table: tribe
+CREATE TABLE tribe (
+  tribe_id SERIAL PRIMARY KEY,
+  tribe_name VARCHAR(255),
+  practices_id INTEGER REFERENCES practices(practices_id),
+  ritual_id INTEGER REFERENCES ritual(ritual_id)
+);
+
+-- Create the table: basic_info
+CREATE TABLE basic_info (
+  basic_info_id SERIAL PRIMARY KEY,
+  image VARCHAR(255),
+  name VARCHAR(255),
+  scientific_name VARCHAR(255),
+  plant_type_id INTEGER REFERENCES plant_type(plant_type_id),
+  basic_description TEXT,
+  origin TEXT,
+  genus TEXT,
+  farming_id INTEGER REFERENCES farming(farming_id),
+  usage_id INTEGER REFERENCES usage(usage_id)
+);
+
+-- Create the table: "user"
+CREATE TABLE "user" (
+  user_id SERIAL PRIMARY KEY,
+  account_id INTEGER REFERENCES account(account_id),
+  first_name VARCHAR(255),
+  last_name VARCHAR(255)
+);
+
+-- Create the table: mapping_info
+CREATE TABLE mapping_info (
+  mapping_info_id SERIAL PRIMARY KEY,
+  location_id INTEGER REFERENCES location(location_id),
+  user_id INTEGER REFERENCES "user"(user_id),
+  local_name VARCHAR(255)
+);
+
+-- Create the table: traditional_crop
+CREATE TABLE traditional_crop (
+  crop_id SERIAL PRIMARY KEY,
+  basic_info_id INTEGER REFERENCES basic_info(basic_info_id),
+  tribe_id INTEGER REFERENCES tribe(tribe_id)
+);
+
+-- Create the junction table: crop_mapping
+CREATE TABLE crop_mapping (
+  crop_id INTEGER REFERENCES traditional_crop(crop_id),
+  mapping_info_id INTEGER REFERENCES mapping_info(mapping_info_id),
+  PRIMARY KEY (crop_id, mapping_info_id)
+);
+
+-- Create the junction table: tribe_crop
+CREATE TABLE tribe_crop (
+  crop_id INTEGER REFERENCES traditional_crop(crop_id),
+  tribe_id INTEGER REFERENCES tribe(tribe_id),
+  PRIMARY KEY (crop_id, tribe_id)
+);
+
+-- Create the junction table: tribe_practices
+CREATE TABLE tribe_practices (
+  tribe_id INTEGER REFERENCES tribe(tribe_id),
+  practices_id INTEGER REFERENCES practices(practices_id),
+  PRIMARY KEY (tribe_id, practices_id)
+);
+
+-- Create the junction table: tribe_ritual
+CREATE TABLE tribe_ritual (
+  tribe_id INTEGER REFERENCES tribe(tribe_id),
+  ritual_id INTEGER REFERENCES ritual(ritual_id),
+  PRIMARY KEY (tribe_id, ritual_id)
+);
+
+-- Create the junction table: basic_info_farming
+CREATE TABLE basic_info_farming (
+  crop_id INTEGER REFERENCES basic_info(crop_id),
+  farming_id INTEGER REFERENCES farming(farming_id),
+  PRIMARY KEY (crop_id, farming_id)
+);
+
+-- Create the junction table: basic_info_usage
+CREATE TABLE basic_info_usage (
+  crop_id INTEGER REFERENCES basic_info(crop_id),
+  usage_id INTEGER REFERENCES usage(usage_id),
+  PRIMARY KEY (crop_id, usage_id)
+);
